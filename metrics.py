@@ -490,6 +490,24 @@ def get_nodes_pagerank_centrality(network: nx.Graph, normalize: bool = True,
     metric_dict = nx.pagerank(network, alpha=0.85, max_iter=100, tol=1e-06, nstart=None, weight=weight, dangling=None)
     return metric_dict if not normalize else _normalize_metric(metric_dict)
 
+def get_average_shortest_path(network: nx.Graph, normalize: bool = True, weight: Optional[str] = None) -> Dict[str, float]:
+    """Get the average shortest path of the network.
+
+    Parameters
+    ----------
+    network : Graph
+        The network for which the average shortest path is computed.
+    weight : str, optional
+        The edge weight to use to compute the average shortest path, by default None
+
+    Returns
+    -------
+    float
+        The average shortest path.
+    """
+    metric_dict = nx.closeness_centrality(network, u=None, distance=weight)
+    return metric_dict if not normalize else _normalize_metric(metric_dict)
+
 def get_nodes_hits_centrality(network: nx.Graph, normalize: bool = True,
                               weight: Optional[str] = None) -> Tuple[Dict[str, float], Dict[str, float]]:
     """Get the HITS centrality (Hubs and Authorities) of all the nodes in the network.
