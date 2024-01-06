@@ -383,6 +383,27 @@ def _normalize_metric(metric_dict: Dict[str, float]) -> Dict[str, float]:
     return { n: (v - min(metric_dict.values())) / (max(metric_dict.values()) - min(metric_dict.values()))
                 for n, v in metric_dict.items() }
 
+def get_nodes_degree_centrality(network: nx.Graph, normalize: bool = True,
+                                   weight: Optional[str] = None) -> Dict[str, float]:
+    """Get the in-degree centrality of all the nodes in the network.
+
+    Parameters
+    ----------
+    network : Graph
+        The network for which the centrality of the nodes is computed.
+    normalize : bool, optional
+        Whether to normalize or not the centrality results by min-max scale, by default True
+    weight : str, optional
+        The edge weight to use to compute the centrality measures, by default None
+
+    Returns
+    -------
+    { str: float }
+        Dictionary where the keys are nodes and the values the relative centrality values.
+    """
+    metric_dict = { n: network.degree(n, weight=weight) for n in network.nodes() }
+    return metric_dict if not normalize else _normalize_metric(metric_dict)
+
 def get_nodes_in_degree_centrality(network: nx.Graph, normalize: bool = True,
                                    weight: Optional[str] = None) -> Dict[str, float]:
     """Get the in-degree centrality of all the nodes in the network.
@@ -526,8 +547,9 @@ def get_nodes_hits_centrality(network: nx.Graph, normalize: bool = True,
     { str: float }
         Dictionary where the keys are nodes and the values the relative centrality values.
     """
-    metric_dict = weighted_hits(network, normalized=normalize, weight=weight)
-    return metric_dict
+    # metric_dict = weighted_hits(network, normalized=normalize, weight=weight)
+    hubs_dict, auth_dict = nx.hits(network)
+    return (hubs_dict, auth_dict) if not normalize else (_normalize_metric(hubs_dict), _normalize_metric(auth_dict))
 
 def normalize_centrality_measures(centrality_dict: Dict[int, Dict[str, float]]) -> Dict[int, Dict[str, float]]:
     """Function to normalize with min-max scale the centrality measures across a dictionary of dictionaries of metrics results
